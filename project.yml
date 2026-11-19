@@ -1,0 +1,81 @@
+name: MarkdownPreview
+options:
+  bundleIdPrefix: dev.ricco
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: 2KHSZ632F5
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "Apple Development"
+    PROVISIONING_PROFILE_SPECIFIER: ""
+    ENABLE_HARDENED_RUNTIME: YES
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+packages:
+  MarkdownRenderer:
+    path: MarkdownRenderer
+
+targets:
+  MarkdownPreview:
+    type: application
+    platform: macOS
+    sources: [App]
+    dependencies:
+      - target: MarkdownQuickLook
+        embed: true
+        codeSign: true
+    entitlements:
+      path: App/MarkdownPreview.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Markdown Preview
+        LSApplicationCategoryType: public.app-category.developer-tools
+        NSHumanReadableCopyright: ""
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: net.daringfireball.markdown
+            UTTypeDescription: Markdown Document
+            UTTypeConformsTo: [public.plain-text]
+            UTTypeTagSpecification:
+              public.filename-extension: [md, markdown, mdown, mkd, mkdn, mdwn, mdtxt, mdtext]
+              public.mime-type: [text/markdown]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.ricco.marklook
+        GENERATE_INFOPLIST_FILE: NO
+
+  MarkdownQuickLook:
+    type: app-extension
+    platform: macOS
+    sources: [QuickLookExtension]
+    dependencies:
+      - package: MarkdownRenderer
+      - sdk: Quartz.framework
+    entitlements:
+      path: QuickLookExtension/MarkdownQuickLook.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.files.user-selected.read-only: true
+    info:
+      path: QuickLookExtension/Info.plist
+      properties:
+        CFBundleDisplayName: Markdown Preview
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.quicklook.preview
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).PreviewProvider
+          NSExtensionAttributes:
+            QLIsDataBasedPreview: true
+            QLSupportsSearchableItems: false
+            QLSupportedContentTypes:
+              - net.daringfireball.markdown
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.ricco.marklook.QuickLook
+        GENERATE_INFOPLIST_FILE: NO
